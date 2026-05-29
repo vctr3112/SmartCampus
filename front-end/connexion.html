@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SmartCampus - Connexion</title>
+
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<style>
+* {
+box-sizing : border-box;
+margin: 0;
+padding: 0;
+}
+
+body {
+font-family: Arial, sans-serif;
+background: #f0f2f5;
+display: flex;
+justify-content: center;
+align-items: center;
+min-height: 100vh;
+}
+
+.login-container {
+background: white;
+padding: 40px;
+border: 1px solid #ccc;
+width: 100%;
+max-width: 420px;
+}
+
+.login-container h1 {
+text-align: center;
+margin-bottom: 24px;
+}
+
+.error-msg {
+background: #ffe0e0;
+border: 1px solid red;
+color: red;
+padding: 10px;
+margin-bottom: 16px;
+display: none;
+}
+
+.error-msg.visible {
+display: block;
+}
+
+form label {
+display: block;
+margin-top: 12px;
+margin-bottom: 4px;
+}
+
+form input {
+width: 100%;
+padding: 10px;
+border: 1px solid #999;
+}
+
+form input:focus {
+border: 2px solid #003366;
+outline: none;
+}
+
+.forgot {
+display: block;
+text-align: right;
+margin-top: 6px;
+font-size: 13px;
+color: #003366;
+}
+
+button {
+width: 100%;
+background: #222;
+color: white;
+padding: 10px;
+border: none;
+margin-top: 20px;
+font-size: 15px;
+cursor: pointer;
+}
+
+button:hover {
+background: #444;
+}
+
+footer {
+text-align: center;
+margin-top: 16px;
+font-size: 12px;
+color: #888;
+}
+
+</style>
+
+<script>
+ocument.addEventListener("DOMContentLoaded", function() {
+  const form = document.getElementById("loginForm");
+  const errorMsg = document.getElementById("errorMsg");
+ 
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    if (email === "" || password === "") {
+      errorMsg.textContent = "Veuillez remplir tous les champs.";
+      errorMsg.classList.add("visible");
+      return;
+    }
+    errorMsg.classList.remove("visible");
+    form.requestSubmit();
+  });
+ 
+  document.getElementById("email").addEventListener("input", function() {
+    errorMsg.classList.remove("visible");
+  });
+ 
+  document.getElementById("password").addEventListener("input", function() {
+    errorMsg.classList.remove("visible");
+  });
+});
+</script>
+</head>
+
+<body>
+<div class="login-container">
+<h1>CONNEXION</h1>
+
+<div class="error-msg" id="errorMsg"></div>
+
+<form id="loginForm" action="traitement_connexion.php" method="POST">
+
+<label for="email">Email :</label>
+<input type="email" id="email" name="email">
+
+<label for="password">Mot de passe :</label>
+<input type="password" id="password" name="password">
+
+<a href="reset-password.html">Mot de passe oublié</a>
+
+<button type="submit" name="submit">VALIDER</button>
+
+</form>
+
+<footer>
+© 2026 SmartCampus
+</footer>
+</div>
+
+</body>
+</html>
