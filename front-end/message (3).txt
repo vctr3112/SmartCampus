@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SmartCampus - Gestion des étudiants</title>
+<style>
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+
+body {
+font-family: Arial, sans-serif;
+display: flex;
+min-height: 100vh;
+}
+
+.sidebar {
+background: #c0392b;
+color: white;
+width: 220px;
+min-height: 100vh;
+padding: 20px;
+}
+
+.sidebar-logo {
+margin-bottom: 30px;
+}
+
+.sidebar-logo p {
+font-size: 13px;
+}
+
+.sidebar ul {
+list-style: none;
+}
+
+.sidebar ul li {
+margin-bottom: 12px;
+}
+
+.sidebar ul li a {
+color: white;
+text-decoration: none;
+font-size: 14px;
+}
+
+.sidebar ul li a:hover {
+text-decoration: underline;
+}
+
+.main {
+flex: 1;
+display: flex;
+flex-direction: column;
+}
+
+.header {
+background: #e74c3c;
+color: white;
+padding: 20px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.header-user p {
+font-size: 14px;
+}
+
+.header-logo {
+text-align: right;
+}
+
+.header-logo p {
+font-size: 14px;
+}
+
+.header-logo a {
+color: white;
+font-size: 13px;
+}
+
+.content {
+padding: 30px;
+background: #f0f2f5;
+flex: 1;
+}
+
+.content h1 {
+margin-bottom: 20px;
+}
+
+.content > p {
+margin-bottom: 8px;
+}
+
+input[type="text"] {
+width: 100%;
+padding: 10px;
+border: 1px solid #999;
+margin-bottom: 20px;
+}
+
+input[type="text"]:focus {
+border: 2px solid #003366;
+outline: none;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+background: white;
+margin-bottom: 20px;
+}
+
+th {
+background: #e74c3c;
+color: white;
+padding: 10px;
+text-align: left;
+font-size: 14px;
+}
+
+td {
+padding: 10px;
+border: 1px solid #ccc;
+font-size: 14px;
+}
+
+tr:nth-child(even) {
+background: #f9f9f9;
+}
+
+.actions {
+display: flex;
+gap: 40px;
+margin-bottom: 20px;
+}
+
+.actions a {
+color: #c0392b;
+text-decoration: none;
+font-size: 14px;
+}
+
+.actions a:hover {
+text-decoration: underline;
+}
+
+.form-container {
+background: white;
+border: 1px solid #ccc;
+padding: 30px;
+margin-top: 20px;
+max-width: 600px;
+}
+
+.form-container h2 {
+margin-bottom: 20px;
+}
+
+form label {
+display: block;
+margin-top: 12px;
+}
+
+form input, form select {
+width: 100%;
+padding: 10px;
+border: 1px solid #999;
+}
+
+form input:focus, form select:focus {
+border: 2px solid #003366;
+outline: none;
+}
+
+.form-buttons {
+display: flex;
+gap: 20px;
+margin-top: 20px;
+}
+
+.btn-annuler {
+background: #c0392b;
+color: white;
+padding: 10px 20px;
+border: none;
+cursor: pointer;
+}
+
+.btn-valider {
+background: #27ae60;
+color: white;
+padding: 10px 20px;
+border: none;
+cursor: pointer;
+}
+
+.btn-annuler:hover {
+background: #a93226;
+}
+
+.btn-valider:hover {
+background: #1e8449;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+var etudiants = [];
+
+//chargement de la liste des étudiants
+fetch("traitement_gestion_etudiant.php")
+.then(function(response) {
+return response.json();
+})
+.then(function(data) {
+etudiants = data;
+afficherEtudiants(etudiants);
+
+//remplir le select des étudiants
+var selectEtudiant = document.getElementById("select-etudiant");
+data.forEach(function(etudiant) {
+var option = document.createElement("option");
+option.value = etudiant.id_etudiant;
+option.textContent = etudiant.nom + " " + etudiant.prenom;
+selectEtudiant.appendChild(option);
+ });
+});
+
+//remplir le select des cours
+fetch("traitement_inscrire_etudiant.php")
+.then(function(response) {
+return response.json();
+})
+.then(function(data) {
+var selectCours = document.getElementById("select-cours");
+data.forEach(function(cours) {
+var option = document.createElement("option");
+option.value = cours.id_cours;
+option.textContent = cours.nom_cours;
+selectCours.appendChild(option);
+});
+});
+
+//affichage des étudiants dans le tableau
+function afficherEtudiants(liste) {
+var tbody = document.getElementById("liste-etudiants");
+tbody.innerHTML = "";
+liste.forEach(function(etudiant) {
+var tr = document.createElement("tr");
+tr.innerHTML =
+"<td>" + etudiant.nom + "</td>" +
+"<td>" + etudiant.prenom + "</td>" +
+"<td>" + etudiant.id_etudiant + "</td>" +
+"<td>" + etudiant.niveau + "</td>" +
+"<td>" + etudiant.filiere + "</td>" +
+"<td>" + etudiant.email + "</td>" +
+"<td></td>" +
+"<td><a href='#'>Modifier</a> | <a href='#'>Supprimer</a></td>";
+tbody.appendChild(tr);
+});
+}
+
+//recherche en temps réel
+document.getElementById("recherche").addEventListener("input", function() {
+var recherche = this.value.toLowerCase();
+var resultats = etudiants.filter(function(etudiant) {
+return etudiant.nom.toLowerCase().includes(recherche) ||
+etudiant.prenom.toLowerCase().includes(recherche);
+});
+afficherEtudiants(resultats);
+});
+
+//afficher/cacher le formulaire ajouter
+document.getElementById("btn-ajouter").addEventListener("click", function(e) {
+e.preventDefault();
+document.getElementById("form-ajouter").style.display = "block";
+document.getElementById("form-inscrire").style.display = "none";
+});
+
+document.getElementById("btn-annuler-ajouter").addEventListener("click", function() {
+document.getElementById("form-ajouter").style.display = "none";
+});
+
+//afficher/cacher le formulaire inscrire
+document.getElementById("btn-inscrire").addEventListener("click", function(e) {
+e.preventDefault();
+document.getElementById("form-inscrire").style.display = "block";
+document.getElementById("form-ajouter").style.display = "none";
+});
+
+document.getElementById("btn-annuler-inscrire").addEventListener("click", function() {
+document.getElementById("form-inscrire").style.display = "none";
+});
+
+});
+</script>
+</head>
+<body>
+
+<!-- barre latérale -->
+<div class="sidebar">
+<div class="sidebar-logo">
+<p>Espace administration</p>
+<p>nom_université</p>
+</div>
+<ul>
+<li><a href="dashboard_admin.html">Tableau de bord</a></li>
+<li><a href="gestion_etudiant.html">Gestion des étudiants</a></li>
+<li><a href="gestion_enseignant.html">Gestion des enseignants</a></li>
+<li><a href="gestion_cours.html">Gestion des cours</a></li>
+<li><a href="messagerie_admin.html">Messagerie</a></li>
+<li><a href="parametres_admin.html">Paramètres</a></li>
+</ul>
+</div>
+
+<div class="main">
+
+<div class="header">
+<div class="header-user">
+<p>Nom</p>
+<p>Prénom</p>
+<p>id_administrateur</p>
+</div>
+<div class="header-logo">
+<p>SmartCampus</p>
+<a href="connexion.html">Déconnexion</a>
+</div>
+</div>
+
+<div class="content">
+<h1>Gestion des étudiants</h1>
+
+<p>Rechercher un étudiant</p>
+<input type="text" id="recherche" name="recherche">
+
+<div id="tableau-etudiants">
+<table>
+<thead>
+<tr>
+<th>Nom</th>
+<th>Prénom</th>
+<th>id_étudiant</th>
+<th>Niveau</th>
+<th>Filière</th>
+<th>Coordonnées</th>
+<th>Cours suivis</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="liste-etudiants">
+</tbody>
+</table>
+</div>
+
+<div class="actions">
+<a href="#" id="btn-ajouter">+ Ajouter un étudiant</a>
+<a href="#" id="btn-inscrire">+ Inscrire un étudiant à un cours</a>
+</div>
+
+<!-- ajouter un étudiant -->
+<div id="form-ajouter" style="display:none;">
+<div class="form-container">
+<h2>Ajouter un nouvel étudiant</h2>
+<form action="traitement_ajouter_etudiant.php" method="POST">
+<label for="nom">Nom :</label>
+<input type="text" id="nom" name="nom">
+
+<label for="prenom">Prénom :</label>
+<input type="text" id="prenom" name="prenom">
+
+<label for="niveau">Niveau :</label>
+<input type="text" id="niveau" name="niveau">
+
+<label for="filiere">Filière :</label>
+<input type="text" id="filiere" name="filiere">
+
+<label for="email">Mail :</label>
+<input type="email" id="email" name="email">
+
+<div class="form-buttons">
+<button type="button" class="btn-annuler" id="btn-annuler-ajouter">Annuler</button>
+<button type="submit" class="btn-valider" name="ajouter_etudiant">Ajouter un nouvel étudiant</button>
+</div>
+</form>
+</div>
+</div>
+
+<!-- inscrire un étudiant à un cours -->
+<div id="form-inscrire" style="display:none;">
+<div class="form-container">
+<h2>Inscrire un étudiant à un cours</h2>
+<form action="traitement_inscrire_etudiant.php" method="POST">
+<label for="select-etudiant">Sélectionner l'étudiant :</label>
+<select id="select-etudiant" name="select_etudiant">
+<option value="">-- Choisir un étudiant --</option>
+</select>
+
+<label for="select-cours">Sélectionner le cours :</label>
+<select id="select-cours" name="select_cours">
+<option value="">-- Choisir un cours --</option>
+</select>
+
+<div class="form-buttons">
+<button type="button" class="btn-annuler" id="btn-annuler-inscrire">Annuler</button>
+<button type="submit" class="btn-valider" name="inscrire_etudiant">Inscrire</button>
+</div>
+</form>
+</div>
+</div>
+
+</div>
+</div>
+
+</body>
+</html>
