@@ -51,11 +51,11 @@ $_SESSION["role"] = $utilisateur["role"];
 
 //redirection selon le rôle
 if ($utilisateur["role"] == "etudiant") {
-header("Location: dashboard-etudiant.php");
+header("Location: dashboard_etudiant.html");
 } else if ($utilisateur["role"] == "enseignant") {
-header("Location: dashboard-enseignant.php");
+header("Location: dashboard_enseignant.html");
 } else if ($utilisateur["role"] == "admin") {
-header("Location: dashboard-admin.php");
+header("Location: dashboard_admin.html");
 }
 exit();
 }
