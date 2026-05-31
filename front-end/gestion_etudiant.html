@@ -73,6 +73,11 @@ font-size: 14px;
 text-align: right;
 }
 
+.header-logo img {
+width: 40px;
+height: 40px;
+}
+
 .header-logo p {
 font-size: 14px;
 }
@@ -210,9 +215,20 @@ background: #1e8449;
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+
+// Affichage des coordonnées de l'admin
+fetch("traitement_dashboard_admin.php")
+.then(function(response) {
+return response.json();
+})
+.then(function(data) {
+document.getElementById("nom_admin").textContent = data.nom;
+document.getElementById("prenom_admin").textContent = data.prenom;
+document.getElementById("id_admin").textContent = data.id_utilisateur;
+});
+
 var etudiants = [];
 
-//chargement de la liste des étudiants
 fetch("traitement_gestion_etudiant.php")
 .then(function(response) {
 return response.json();
@@ -221,17 +237,15 @@ return response.json();
 etudiants = data;
 afficherEtudiants(etudiants);
 
-//remplir le select des étudiants
 var selectEtudiant = document.getElementById("select-etudiant");
 data.forEach(function(etudiant) {
 var option = document.createElement("option");
 option.value = etudiant.id_etudiant;
 option.textContent = etudiant.nom + " " + etudiant.prenom;
 selectEtudiant.appendChild(option);
- });
+});
 });
 
-//remplir le select des cours
 fetch("traitement_inscrire_etudiant.php")
 .then(function(response) {
 return response.json();
@@ -246,7 +260,6 @@ selectCours.appendChild(option);
 });
 });
 
-//affichage des étudiants dans le tableau
 function afficherEtudiants(liste) {
 var tbody = document.getElementById("liste-etudiants");
 tbody.innerHTML = "";
@@ -265,7 +278,6 @@ tbody.appendChild(tr);
 });
 }
 
-//recherche en temps réel
 document.getElementById("recherche").addEventListener("input", function() {
 var recherche = this.value.toLowerCase();
 var resultats = etudiants.filter(function(etudiant) {
@@ -275,7 +287,6 @@ etudiant.prenom.toLowerCase().includes(recherche);
 afficherEtudiants(resultats);
 });
 
-//afficher/cacher le formulaire ajouter
 document.getElementById("btn-ajouter").addEventListener("click", function(e) {
 e.preventDefault();
 document.getElementById("form-ajouter").style.display = "block";
@@ -286,7 +297,6 @@ document.getElementById("btn-annuler-ajouter").addEventListener("click", functio
 document.getElementById("form-ajouter").style.display = "none";
 });
 
-//afficher/cacher le formulaire inscrire
 document.getElementById("btn-inscrire").addEventListener("click", function(e) {
 e.preventDefault();
 document.getElementById("form-inscrire").style.display = "block";
@@ -302,19 +312,16 @@ document.getElementById("form-inscrire").style.display = "none";
 </head>
 <body>
 
-<!-- barre latérale -->
 <div class="sidebar">
 <div class="sidebar-logo">
 <p>Espace administration</p>
-<p>nom_université</p>
 </div>
 <ul>
 <li><a href="dashboard_admin.html">Tableau de bord</a></li>
 <li><a href="gestion_etudiant.html">Gestion des étudiants</a></li>
 <li><a href="gestion_enseignant.html">Gestion des enseignants</a></li>
 <li><a href="gestion_cours.html">Gestion des cours</a></li>
-<li><a href="messagerie_admin.html">Messagerie</a></li>
-<li><a href="parametres_admin.html">Paramètres</a></li>
+<li><a href="parametres.html">Paramètres</a></li>
 </ul>
 </div>
 
@@ -322,11 +329,12 @@ document.getElementById("form-inscrire").style.display = "none";
 
 <div class="header">
 <div class="header-user">
-<p>Nom</p>
-<p>Prénom</p>
-<p>id_administrateur</p>
+<p><strong>Nom :</strong> <span id="nom_admin">...</span></p>
+<p><strong>Prénom :</strong> <span id="prenom_admin">...</span></p>
+<p><strong>id_admin :</strong> <span id="id_admin">...</span></p>
 </div>
 <div class="header-logo">
+<img src="logo.png" alt="logo">
 <p>SmartCampus</p>
 <a href="connexion.html">Déconnexion</a>
 </div>
@@ -362,7 +370,6 @@ document.getElementById("form-inscrire").style.display = "none";
 <a href="#" id="btn-inscrire">+ Inscrire un étudiant à un cours</a>
 </div>
 
-<!-- ajouter un étudiant -->
 <div id="form-ajouter" style="display:none;">
 <div class="form-container">
 <h2>Ajouter un nouvel étudiant</h2>
@@ -390,7 +397,6 @@ document.getElementById("form-inscrire").style.display = "none";
 </div>
 </div>
 
-<!-- inscrire un étudiant à un cours -->
 <div id="form-inscrire" style="display:none;">
 <div class="form-container">
 <h2>Inscrire un étudiant à un cours</h2>
