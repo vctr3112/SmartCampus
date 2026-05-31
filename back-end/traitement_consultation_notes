@@ -37,7 +37,7 @@ $etudiant = mysqli_fetch_assoc($result_user);
 if ($etudiant) {
 $donnees_notes["nom"] = $etudiant["nom"];
 $donnees_notes["prenom"] = $etudiant["prenom"];
-$donnees_notes["numero_etudiant"] = $etudiant["numero_etudiant"];
+$donnees_notes["id_etudiant"] = $etudiant["id_etudiant"];
 $id_etudiant = $etudiant["id_etudiant"];
 } else {
 echo json_encode(["erreur" => "Etudiant introuvable."]);
