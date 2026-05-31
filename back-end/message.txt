@@ -1,0 +1,60 @@
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "SmartCampus";
+
+session_start();
+
+//on vérifie la session et du rôle
+if (!isset($_SESSION["id_utilisateur"]) || $_SESSION["role"] !== "enseignant") {
+header("Location: connexion.html");
+exit();
+}
+
+$conn = mysqli_connect($servername, $username, $password, $dbname);
+
+if (!$conn) {
+die("Echec de la connexion: " . mysqli_connect_error());
+}
+
+//on récupère l'id_enseignant depuis la session
+$id_utilisateur = $_SESSION["id_utilisateur"];
+$result_ens = mysqli_query($conn, "SELECT id_enseignant FROM Enseignant WHERE id_utilisateur = $id_utilisateur");
+$enseignant = mysqli_fetch_assoc($result_ens);
+$id_enseignant = $enseignant["id_enseignant"];
+
+//on récupère le prochain cours
+$query_edt = "SELECT s.date, s.heure_debut, s.heure_fin, s.salle, c.nom_cours
+FROM Seance s JOIN Cours c ON s.id_cours = c.id_cours 
+WHERE c.id_enseignant = ? AND s.date >= CURDATE() ORDER BY s.date, s.heure_debut
+LIMIT 1";
+$stmt_edt = mysqli_prepare($conn, $query_edt);
+mysqli_stmt_bind_param($stmt_edt, "i", $id_enseignant);
+mysqli_stmt_execute($stmt_edt);
+$result_edt = mysqli_stmt_get_result($stmt_edt);
+$prochain_cours = mysqli_fetch_assoc($result_edt);
+
+//on récupère les cours avec notes à saisir
+$query_notes = "SELECT c.nom_cours, COUNT(i.id_etudiant) AS nb_etudiants,
+COUNT(n.id_note) AS nb_notes_saisies FROM Cours c JOIN Inscription i ON c.id_cours = i.id_cours
+LEFT JOIN Note n ON c.id_cours = n.id_cours AND i.id_etudiant = n.id_etudiant WHERE c.id_enseignant = ?
+GROUP BY c.id_cours";
+$stmt_notes = mysqli_prepare($conn, $query_notes);
+mysqli_stmt_bind_param($stmt_notes, "i", $id_enseignant);
+mysqli_stmt_execute($stmt_notes);
+$result_notes = mysqli_stmt_get_result($stmt_notes);
+$notes = [];
+while ($row = mysqli_fetch_assoc($result_notes)) {
+$notes[] = $row;
+}
+
+mysqli_close($conn);
+
+//envoi des données en JSON
+header("Content-Type: application/json");
+echo json_encode([
+"prochain_cours" => $prochain_cours,
+"notes" => $notes
+]);
+?>
