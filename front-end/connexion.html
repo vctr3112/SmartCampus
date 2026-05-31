@@ -101,29 +101,29 @@ color: #888;
 
 <script>
 ocument.addEventListener("DOMContentLoaded", function() {
-  const form = document.getElementById("loginForm");
-  const errorMsg = document.getElementById("errorMsg");
+const form = document.getElementById("loginForm");
+const errorMsg = document.getElementById("errorMsg");
  
-  form.addEventListener("submit", function(e) {
-    e.preventDefault();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    if (email === "" || password === "") {
-      errorMsg.textContent = "Veuillez remplir tous les champs.";
-      errorMsg.classList.add("visible");
-      return;
-    }
-    errorMsg.classList.remove("visible");
-    form.requestSubmit();
-  });
- 
-  document.getElementById("email").addEventListener("input", function() {
-    errorMsg.classList.remove("visible");
-  });
- 
-  document.getElementById("password").addEventListener("input", function() {
-    errorMsg.classList.remove("visible");
-  });
+form.addEventListener("submit", function(e) {
+e.preventDefault();
+const email = document.getElementById("email").value.trim();
+const password = document.getElementById("password").value;
+if (email === "" || password === "") {
+errorMsg.textContent = "Veuillez remplir tous les champs.";
+errorMsg.classList.add("visible");
+return;
+}
+errorMsg.classList.remove("visible");
+form.requestSubmit();
+});
+
+document.getElementById("email").addEventListener("input", function() {
+errorMsg.classList.remove("visible");
+});
+
+document.getElementById("password").addEventListener("input", function() {
+errorMsg.classList.remove("visible");
+});
 });
 </script>
 </head>
@@ -142,7 +142,7 @@ ocument.addEventListener("DOMContentLoaded", function() {
 <label for="password">Mot de passe :</label>
 <input type="password" id="password" name="password">
 
-<a href="reset-password.html">Mot de passe oublié</a>
+<a href="reset_password.html">Mot de passe oublié</a>
 
 <button type="submit" name="submit">VALIDER</button>
 
