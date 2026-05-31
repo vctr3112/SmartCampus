@@ -1,0 +1,93 @@
+<?php
+$servername = "localhost";
+$username = "root";
+$password = ""; 
+$dbname = "SmartCampus";
+
+session_start();
+
+header("Content-Type: application/json");
+
+if (!isset($_SESSION["id_utilisateur"]) || $_SESSION["role"] !== "etudiant") {
+echo json_encode(["erreur" => "Non autorisé. Veuillez vous connecter."]);
+exit();
+}
+
+$conn = mysqli_connect($servername, $username, $password, $dbname);
+
+if (!$conn) {
+echo json_encode(["erreur" => "Echec de la connexion: " . mysqli_connect_error()]);
+exit();
+}
+
+mysqli_set_charset($conn, "utf8mb4");
+
+$id_utilisateur = $_SESSION["id_utilisateur"];
+$donnees_notes = [];
+
+$sql_user = "SELECT u.nom, u.prenom, e.numero_etudiant, e.id_etudiant 
+FROM Utilisateurs u JOIN Etudiant e ON u.id_utilisateur = e.id_utilisateur 
+WHERE u.id_utilisateur = ?";
+$stmt_user = mysqli_prepare($conn, $sql_user);
+mysqli_stmt_bind_param($stmt_user, "i", $id_utilisateur);
+mysqli_stmt_execute($stmt_user);
+$result_user = mysqli_stmt_get_result($stmt_user);
+$etudiant = mysqli_fetch_assoc($result_user);
+
+if ($etudiant) {
+$donnees_notes["nom"] = $etudiant["nom"];
+$donnees_notes["prenom"] = $etudiant["prenom"];
+$donnees_notes["numero_etudiant"] = $etudiant["numero_etudiant"];
+$id_etudiant = $etudiant["id_etudiant"];
+} else {
+echo json_encode(["erreur" => "Etudiant introuvable."]);
+exit();
+}
+
+$sql_notes = "SELECT c.id_cours, c.nom_cours, n.valeur, n.coefficient 
+FROM Note n JOIN Cours c ON n.id_cours = c.id_cours 
+WHERE n.id_etudiant = ?";
+$stmt_notes = mysqli_prepare($conn, $sql_notes);
+mysqli_stmt_bind_param($stmt_notes, "i", $id_etudiant);
+mysqli_stmt_execute($stmt_notes);
+$result_notes = mysqli_stmt_get_result($stmt_notes);
+
+$liste_notes = [];
+$somme_notes_coeff = 0;
+$somme_coeffs = 0;
+
+while ($row = mysqli_fetch_assoc($result_notes)) {
+$id_cours = $row['id_cours'];
+
+$sql_promo = "SELECT AVG(valeur) as moyenne_promo FROM Note WHERE id_cours = ?";
+$stmt_promo = mysqli_prepare($conn, $sql_promo);
+mysqli_stmt_bind_param($stmt_promo, "i", $id_cours);
+mysqli_stmt_execute($stmt_promo);
+$res_promo = mysqli_stmt_get_result($stmt_promo);
+$promo_row = mysqli_fetch_assoc($res_promo);
+
+$moyenne_promo_format = $promo_row['moyenne_promo'] ? number_format($promo_row['moyenne_promo'], 2) : "-";
+
+$liste_notes[] = [
+"matiere" => $row['nom_cours'],
+"coefficient" => $row['coefficient'], // <-- RAJOUTÉ ICI
+"note_obtenue" => number_format($row['valeur'], 2),
+"moyenne_promo" => $moyenne_promo_format
+];
+    
+$somme_notes_coeff += ($row['valeur'] * $row['coefficient']);
+$somme_coeffs += $row['coefficient'];
+}
+
+$donnees_notes["notes"] = $liste_notes;
+
+if ($somme_coeffs > 0) {
+$donnees_notes["moyenne_generale"] = number_format($somme_notes_coeff / $somme_coeffs, 2);
+} else {
+$donnees_notes["moyenne_generale"] = "-";
+}
+
+echo json_encode($donnees_notes);
+
+mysqli_close($conn);
+?>
