@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>SmartCampus - Mes Notes</title>
+
+<style>
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: Arial, sans-serif;
+}
+
+body {
+display: flex;
+min-height: 100vh;
+}
+
+.sidebar {
+background: #92d089;
+width: 250px;
+min-height: 100vh;
+padding: 20px;
+border-right: 2px solid #7cb374;
+}
+
+.sidebar-header {
+display: flex;
+align-items: center;
+margin-bottom: 40px;
+}
+
+.sidebar-header p {
+font-size: 14px;
+font-weight: bold;
+}
+
+.sidebar ul {
+list-style: none;
+}
+
+.sidebar ul li {
+margin-bottom: 15px;
+display: flex;
+align-items: center;
+}
+
+.sidebar ul li::before {
+content: "•";
+margin-right: 10px;
+font-size: 20px;
+}
+
+.sidebar ul li a {
+color: black;
+text-decoration: none;
+font-size: 16px;
+}
+
+.sidebar ul li a:hover {
+font-weight: bold;
+}
+
+.main {
+flex: 1;
+display: flex;
+flex-direction: column;
+background: #ffffff;
+}
+
+.header {
+background: #b7e4b1;
+padding: 20px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+border-bottom: 2px solid #99c294;
+}
+
+.header-left {
+display: flex;
+align-items: center;
+}
+
+.header-user {
+font-size: 14px;
+}
+
+.header-logo {
+text-align: right;
+display: flex;
+flex-direction: column;
+align-items: flex-end;
+}
+
+.header-logo img {
+width: 40px;
+height: 40px;
+}
+
+.header-logo p {
+font-size: 14px;
+margin-top: 5px;
+}
+
+.header-logo a {
+color: black;
+font-size: 12px;
+text-decoration: none;
+margin-top: 5px;
+}
+
+.header-logo a:hover {
+text-decoration: underline;
+}
+
+.placeholder-image {
+background: white;
+border: 2px solid grey;
+border-radius: 50%;
+display: flex;
+justify-content: center;
+align-items: center;
+color: grey;
+font-size: 12px;
+text-align: center;
+}
+
+.circle-small { width: 50px; height: 50px; margin-right: 15px; }
+.circle-large { width: 80px; height: 80px; margin-right: 20px; }
+
+.content {
+padding: 30px;
+flex: 1;
+}
+
+.content h1 {
+margin-bottom: 24px;
+font-weight: normal;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+border-radius: 10px;
+overflow: hidden;
+border: 1px solid #ccc;
+margin-bottom: 30px;
+}
+
+th, td {
+border: 1px solid #ccc;
+padding: 15px;
+text-align: left;
+}
+
+th {
+background-color: #fff;
+font-weight: normal;
+font-size: 14px;
+}
+
+td {
+background-color: #fff;
+font-size: 14px;
+}
+
+.empty-row td {
+height: 50px;
+}
+
+.footer-notes {
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+}
+
+.moyenne-container {
+display: flex;
+align-items: center;
+margin-bottom: 30px;
+}
+
+.moyenne-container label {
+font-size: 18px;
+margin-right: 15px;
+}
+
+.moyenne-box {
+border: 2px solid grey;
+border-radius: 4px;
+padding: 10px 20px;
+width: 250px;
+font-size: 18px;
+font-weight: bold;
+display: flex;
+align-items: center;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+fetch("traitement_consultation_notes.php")
+.then(function(response) {
+return response.json();
+})
+.then(function(data) {
+if (data.erreur) {
+alert(data.erreur);
+window.location.href = "connexion.html";
+return;
+}
+
+document.getElementById("nom_etudiant").textContent = data.nom;
+document.getElementById("prenom_etudiant").textContent = data.prenom;
+document.getElementById("id_etudiant").textContent = "E" + data.numero_etudiant;
+
+const tbody = document.getElementById("notes-body");
+tbody.innerHTML = "";
+
+data.notes.forEach(function(note) {
+const tr = document.createElement("tr");
+tr.innerHTML = `
+<td>${note.matiere}</td>
+<td>${note.coefficient}</td>
+<td>${note.note_obtenue} / 20</td>
+<td>${note.moyenne_promo} / 20</td>`;
+tbody.appendChild(tr);
+});
+
+for(let i = data.notes.length; i < 5; i++) {
+const emptyTr = document.createElement("tr");
+emptyTr.className = "empty-row";
+emptyTr.innerHTML = `<td></td><td></td><td></td><td></td>`;
+tbody.appendChild(emptyTr);
+}
+
+document.getElementById("moyenne_generale").textContent = data.moyenne_generale + " / 20";
+})
+.catch(function(error) {
+console.error("Erreur de chargement des notes:", error);
+});
+});
+</script>
+</head>
+
+<body>
+
+<div class="sidebar">
+<div class="sidebar-header">
+<div class="placeholder-image circle-small">Image</div>
+<div class="sidebar-title">
+<p>Espace étudiant</p>
+<p>nom_université</p>
+</div>
+</div>
+<ul>
+<li><a href="dashboard_etudiant.html">Tableau de bord</a></li>
+<li><a href="consultation_notes.html">Mes notes</a></li>
+<li><a href="edt_etudiant.html">Mon emploi du temps</a></li>
+<li><a href="presence_etudiant.html">Presence</a></li>
+<li><a href="messagerie_etudiant.html">Messagerie</a></li>
+<li><a href="parametres_etudiant.html">Paramètres</a></li>
+</ul>
+</div>
+
+<div class="main">
+
+<div class="header">
+<div class="header-left">
+<div class="placeholder-image circle-large">photo de<br>l'étudiant</div>
+<div class="header-user">
+<p><strong>Nom :</strong> <span id="nom_etudiant">...</span></p>
+<p><strong>Prénom :</strong> <span id="prenom_etudiant">...</span></p>
+<p><strong>id_étudiant :</strong> <span id="id_etudiant">...</span></p>
+</div>
+</div>
+
+<div class="header-logo">
+<img src="logo.png" alt="logo">
+<p>SmartCampus</p>
+<a href="connexion.html">*Déconnexion</a>
+</div>
+</div>
+
+<div class="content">
+<h1>Mes notes</h1>
+
+<table>
+<thead>
+<tr>
+<th>Nom de la matière</th>
+<th>Coefficient</th>
+<th>Note obtenue</th>
+<th>Moyenne de la promo</th>
+</tr>
+</thead>
+<tbody id="notes-body">
+<tr class="empty-row"><td>Chargement...</td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+
+<div class="footer-notes">
+<div class="moyenne-container">
+<label>Moyenne générale de l'étudiant:</label>
+<div class="moyenne-box" id="moyenne_generale">... / 20</div>
+</div>
+</div>
+
+</div>
+</div>
+
+</body>
+</html>
