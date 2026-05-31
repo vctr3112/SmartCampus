@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SmartCampus - Saisie des notes</title>
+<style>
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+
+body {
+font-family: Arial, sans-serif;
+display: flex;
+min-height: 100vh;
+}
+
+.sidebar {
+background: #1a5276;
+color: white;
+width: 220px;
+min-height: 100vh;
+padding: 20px;
+}
+
+.sidebar-logo {
+margin-bottom: 30px;
+}
+
+.sidebar-logo p {
+font-size: 13px;
+}
+
+.sidebar ul {
+list-style: none;
+}
+
+.sidebar ul li {
+margin-bottom: 12px;
+}
+
+.sidebar ul li a {
+color: white;
+text-decoration: none;
+font-size: 14px;
+}
+
+.sidebar ul li a:hover {
+text-decoration: underline;
+}
+
+.main {
+flex: 1;
+display: flex;
+flex-direction: column;
+}
+
+.header {
+background: #2980b9;
+color: white;
+padding: 20px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.header-user p {
+font-size: 14px;
+}
+
+.header-logo {
+text-align: right;
+}
+
+.header-logo img {
+width: 40px;
+height: 40px;
+}
+
+.header-logo p {
+font-size: 14px;
+}
+
+.header-logo a {
+color: white;
+font-size: 13px;
+}
+
+.content {
+padding: 30px;
+background: #f0f2f5;
+flex: 1;
+}
+
+.content-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 20px;
+}
+
+.content-header h1 {
+font-size: 24px;
+}
+
+.filtres {
+display: flex;
+gap: 20px;
+margin-bottom: 20px;
+}
+
+.filtres select, .filtres input {
+padding: 10px;
+border: 1px solid #999;
+font-size: 14px;
+flex: 1;
+}
+
+.filtres select:focus, .filtres input:focus {
+border: 2px solid #003366;
+outline: none;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+background: white;
+margin-bottom: 20px;
+}
+
+th {
+background: #2980b9;
+color: white;
+padding: 10px;
+text-align: left;
+font-size: 14px;
+}
+
+td {
+padding: 10px;
+border: 1px solid #ccc;
+font-size: 14px;
+}
+
+tr:nth-child(even) {
+background: #f9f9f9;
+}
+
+td input[type="number"] {
+width: 100%;
+padding: 6px;
+border: 1px solid #999;
+}
+
+td input[type="number"]:focus {
+border: 2px solid #003366;
+outline: none;
+}
+
+.btn-valider {
+background: #27ae60;
+color: white;
+padding: 10px 20px;
+border: none;
+cursor: pointer;
+font-size: 14px;
+}
+
+.btn-valider:hover {
+background: #1e8449;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+var selectCours = document.getElementById("select-cours");
+var selectClasse = document.getElementById("select-classe");
+var dateExamen = document.getElementById("date-examen");
+
+//chargement des cours de l'enseignant
+fetch("traitement_saisie_notes.php?cours")
+.then(function(response) {
+return response.json();
+})
+.then(function(data) {
+data.forEach(function(cours) {
+var option = document.createElement("option");
+option.value = cours.id_cours;
+option.textContent = cours.nom_cours;
+selectCours.appendChild(option);
+});
+});
+
+//chargement des classes quand on change de cours
+selectCours.addEventListener("change", function() {
+var id_cours = this.value;
+selectClasse.innerHTML = '<option value="">-- Sélectionner une classe --</option>';
+document.getElementById("liste-etudiants").innerHTML = "";
+
+if (id_cours) {
+fetch("traitement_saisie_notes.php?classes&id_cours=" + id_cours)
+.then(function(response) {
+return response.json();
+})
+.then(function(data) {
+data.forEach(function(classe) {
+var option = document.createElement("option");
+option.value = classe.filiere + "|" + classe.niveau;
+option.textContent = classe.filiere + " - " + classe.niveau;
+selectClasse.appendChild(option);
+});
+});
+}
+});
+
+//chargement des étudiants quand on change de classe
+selectClasse.addEventListener("change", function() {
+var id_cours = selectCours.value;
+var classeVal = this.value;
+document.getElementById("liste-etudiants").innerHTML = "";
+
+if (id_cours && classeVal) {
+var parts = classeVal.split("|");
+var filiere = parts[0];
+var niveau = parts[1];
+
+fetch("traitement_saisie_notes.php?etudiants&id_cours=" + id_cours + "&filiere=" + encodeURIComponent(filiere) + "&niveau=" + encodeURIComponent(niveau))
+.then(function(response) {
+return response.json();
+})
+.then(function(data) {
+var tbody = document.getElementById("liste-etudiants");
+data.forEach(function(etudiant) {
+var tr = document.createElement("tr");
+tr.innerHTML =
+"<td>" + etudiant.nom + "</td>" +
+"<td>" + etudiant.prenom + "</td>" +
+"<td><input type='number' name='notes[" + etudiant.id_etudiant + "]' min='0' max='20' step='0.25'></td>";
+tbody.appendChild(tr);
+});
+
+//mise à jour des champs cachés
+document.getElementById("hidden-cours").value = id_cours;
+});
+}
+});
+
+//mise à jour du champ caché date
+dateExamen.addEventListener("change", function() {
+document.getElementById("hidden-date").value = this.value;
+});
+
+});
+</script>
+</head>
+<body>
+
+<div class="sidebar">
+<div class="sidebar-logo">
+<p>Espace enseignant</p>
+<p>nom_université</p>
+</div>
+<ul>
+<li><a href="dashboard_enseignant.html">Tableau de bord</a></li>
+<li><a href="saisie_notes.html">Saisie de notes</a></li>
+<li><a href="mes_cours.html">Mes cours</a></li>
+<li><a href="edt_enseignant.html">Mon emploi du temps</a></li>
+<li><a href="suivi_presence.html">Suivi de présence</a></li>
+<li><a href="messagerie_enseignant.html">Messagerie</a></li>
+<li><a href="parametres_enseignant.html">Paramètres</a></li>
+</ul>
+</div>
+
+<div class="main">
+
+<div class="header">
+<div class="header-user">
+<p>Nom</p>
+<p>Prénom</p>
+<p>id_enseignant</p>
+</div>
+<div class="header-logo">
+<img src="logo.png" alt="logo">
+<p>SmartCampus</p>
+<a href="connexion.html">Déconnexion</a>
+</div>
+</div>
+
+<div class="content">
+
+<div class="content-header">
+<h1>Saisie de notes</h1>
+<button type="submit" form="form-notes" class="btn-valider">Valider la saisie</button>
+</div>
+
+<div class="filtres">
+<select id="select-cours" name="id_cours">
+<option value="">-- Sélectionner un cours --</option>
+</select>
+
+<input type="date" id="date-examen" name="date_examen">
+
+<select id="select-classe" name="classe">
+<option value="">-- Sélectionner une classe --</option>
+</select>
+</div>
+
+<form id="form-notes" action="traitement_saisie_notes.php" method="POST">
+<input type="hidden" name="id_cours" id="hidden-cours">
+<input type="hidden" name="date_examen" id="hidden-date">
+
+<table>
+<thead>
+<tr>
+<th>Nom de l'étudiant</th>
+<th>Prénom de l'étudiant</th>
+<th>Note de l'étudiant</th>
+</tr>
+</thead>
+<tbody id="liste-etudiants">
+</tbody>
+</table>
+</form>
+
+</div>
+</div>
+
+</body>
+</html>
