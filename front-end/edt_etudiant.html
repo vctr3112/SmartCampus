@@ -27,8 +27,6 @@ border-right: 2px solid #7cb374;
 }
 
 .sidebar-header {
-display: flex;
-align-items: center;
 margin-bottom: 40px;
 }
 
@@ -79,11 +77,6 @@ align-items: center;
 border-bottom: 2px solid #99c294;
 }
 
-.header-left {
-display: flex;
-align-items: center;
-}
-
 .header-user {
 font-size: 14px;
 }
@@ -114,29 +107,6 @@ margin-top: 5px;
 
 .header-logo a:hover {
 text-decoration: underline;
-}
-
-.placeholder-image {
-background: white;
-border: 2px solid grey;
-border-radius: 50%;
-display: flex;
-justify-content: center;
-align-items: center;
-color: grey; font-size: 12px;
-text-align: center;
-}
-
-.circle-small {
-width: 50px; 
-height: 50px;
-margin-right: 15px;
-}
-
-.circle-large {
-width: 80px;
-height: 80px;
-margin-right: 20px;
 }
 
 .content {
@@ -226,35 +196,11 @@ overflow: hidden;
 
 .course-block strong { font-size: 13px; margin-bottom: 4px; display: block; }
 
-.color-1 {
-background-color: #e3f2fd;
-color: #1565c0;
-border-left: 4px solid #1e88e5;
-}
-
-.color-2 {
-background-color: #fff9c4;
-color: #f57f17;
-border-left: 4px solid #fbc02d;
-}
-
-.color-3 {
-background-color: #e8f5e9;
-color: #2e7d32;
-border-left: 4px solid #43a047;
-}
-
-.color-4 {
-background-color: #f3e5f5;
-color: #6a1b9a;
-border-left: 4px solid #8e24aa;
-}
-
-.color-5 {
-background-color: #ffebee;
-color: #c62828;
-border-left: 4px solid #e53935;
-}
+.color-1 { background-color: #e3f2fd; color: #1565c0; border-left: 4px solid #1e88e5; }
+.color-2 { background-color: #fff9c4; color: #f57f17; border-left: 4px solid #fbc02d; }
+.color-3 { background-color: #e8f5e9; color: #2e7d32; border-left: 4px solid #43a047; }
+.color-4 { background-color: #f3e5f5; color: #6a1b9a; border-left: 4px solid #8e24aa; }
+.color-5 { background-color: #ffebee; color: #c62828; border-left: 4px solid #e53935; }
 </style>
 
 <script>
@@ -270,7 +216,7 @@ return;
 
 document.getElementById("nom_etudiant").textContent = data.nom;
 document.getElementById("prenom_etudiant").textContent = data.prenom;
-document.getElementById("id_etudiant").textContent = "E" + data.numero_etudiant;
+document.getElementById("id_etudiant").textContent = data.id_etudiant;
 
 const dayContainers = {
 1: document.getElementById("day-1"),
@@ -321,31 +267,22 @@ dayContainers[dayOfWeek].appendChild(block);
 
 <div class="sidebar">
 <div class="sidebar-header">
-<div class="placeholder-image circle-small">Image</div>
-<div class="sidebar-title">
 <p>Espace étudiant</p>
-<p>nom_université</p>
-</div>
 </div>
 <ul>
 <li><a href="dashboard_etudiant.html">Tableau de bord</a></li>
 <li><a href="consultation_notes.html">Mes notes</a></li>
 <li><a href="edt_etudiant.html">Mon emploi du temps</a></li>
-<li><a href="presence_etudiant.html">Presence</a></li>
-<li><a href="messagerie_etudiant.html">Messagerie</a></li>
-<li><a href="parametres_etudiant.html">Paramètres</a></li>
+<li><a href="parametres.html">Paramètres</a></li>
 </ul>
 </div>
 
 <div class="main">
 <div class="header">
-<div class="header-left">
-<div class="placeholder-image circle-large">photo de<br>l'étudiant</div>
 <div class="header-user">
 <p><strong>Nom :</strong> <span id="nom_etudiant">...</span></p>
 <p><strong>Prénom :</strong> <span id="prenom_etudiant">...</span></p>
 <p><strong>id_étudiant :</strong> <span id="id_etudiant">...</span></p>
-</div>
 </div>
 <div class="header-logo">
 <img src="logo.png" alt="logo">
@@ -399,7 +336,6 @@ dayContainers[dayOfWeek].appendChild(block);
 </div>
 
 </div>
-
 </div>
 </div>
 
