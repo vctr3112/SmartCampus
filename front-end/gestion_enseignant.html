@@ -73,6 +73,11 @@ font-size: 14px;
 text-align: right;
 }
 
+.header-logo img {
+width: 40px;
+height: 40px;
+}
+
 .header-logo p {
 font-size: 14px;
 }
@@ -211,6 +216,17 @@ background: #1e8449;
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
+// Affichage des coordonnées de l'admin
+fetch("traitement_dashboard_admin.php")
+.then(function(response) {
+return response.json();
+})
+.then(function(data) {
+document.getElementById("nom_admin").textContent = data.nom;
+document.getElementById("prenom_admin").textContent = data.prenom;
+document.getElementById("id_admin").textContent = data.id_utilisateur;
+});
+
 var enseignants = [];
 
 fetch("traitement_gestion_enseignant.php")
@@ -222,7 +238,6 @@ enseignants = data;
 afficherEnseignants(enseignants);
 });
 
-//affichage des enseignants dans le tableau
 function afficherEnseignants(liste) {
 var tbody = document.getElementById("liste-enseignants");
 tbody.innerHTML = "";
@@ -241,7 +256,6 @@ tbody.appendChild(tr);
 });
 }
 
-// Recherche en temps réel
 document.getElementById("recherche").addEventListener("input", function() {
 var recherche = this.value.toLowerCase();
 var resultats = enseignants.filter(function(enseignant) {
@@ -251,7 +265,6 @@ enseignant.prenom.toLowerCase().includes(recherche);
 afficherEnseignants(resultats);
 });
 
-//afficher/cacher le formulaire ajouter
 document.getElementById("btn-ajouter").addEventListener("click", function(e) {
 e.preventDefault();
 document.getElementById("form-ajouter").style.display = "block";
@@ -269,15 +282,13 @@ document.getElementById("form-ajouter").style.display = "none";
 <div class="sidebar">
 <div class="sidebar-logo">
 <p>Espace administration</p>
-<p>nom_université</p>
 </div>
 <ul>
 <li><a href="dashboard_admin.html">Tableau de bord</a></li>
 <li><a href="gestion_etudiant.html">Gestion des étudiants</a></li>
 <li><a href="gestion_enseignant.html">Gestion des enseignants</a></li>
 <li><a href="gestion_cours.html">Gestion des cours</a></li>
-<li><a href="messagerie_admin.html">Messagerie</a></li>
-<li><a href="parametres_admin.html">Paramètres</a></li>
+<li><a href="parametres.html">Paramètres</a></li>
 </ul>
 </div>
 
@@ -285,11 +296,12 @@ document.getElementById("form-ajouter").style.display = "none";
 
 <div class="header">
 <div class="header-user">
-<p>Nom</p>
-<p>Prénom</p>
-<p>id_administrateur</p>
+<p><strong>Nom :</strong> <span id="nom_admin">...</span></p>
+<p><strong>Prénom :</strong> <span id="prenom_admin">...</span></p>
+<p><strong>id_admin :</strong> <span id="id_admin">...</span></p>
 </div>
 <div class="header-logo">
+<img src="logo.png" alt="logo">
 <p>SmartCampus</p>
 <a href="connexion.html">Déconnexion</a>
 </div>
@@ -324,7 +336,6 @@ document.getElementById("form-ajouter").style.display = "none";
 <a href="#" id="btn-ajouter">+ Ajouter un enseignant</a>
 </div>
 
-<!-- formulaire ajouter un enseignant -->
 <div id="form-ajouter" style="display:none;">
 <div class="form-container">
 <h2>Ajouter un nouvel enseignant</h2>
